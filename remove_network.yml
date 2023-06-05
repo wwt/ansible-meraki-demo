@@ -1,0 +1,18 @@
+---
+- name: Remove Devices from Meraki Network
+  cisco.meraki.meraki_device:
+    auth_key: "{{ auth_key }}"
+    org_name: "{{ network.organization }}"
+    net_name: "{{ network.name }}"
+    serial: "{{ device.serial }}"
+    state: absent
+  loop: "{{ network.devices }}"
+  loop_control:
+    loop_var: device
+
+- name: Remove Meraki Network
+  cisco.meraki.meraki_network:
+    auth_key: "{{ auth_key }}"
+    state: absent
+    org_name: "{{ network.organization }}"
+    net_name: "{{ network.name }}"

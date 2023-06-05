@@ -1,0 +1,69 @@
+---
+meraki_mr_configuration:
+  access_points:
+    - name: demo-mr44
+      organization: ORG NAME
+      network: NETWORK NAME
+      rf_profile_name: Demo-RF-Profile
+      general_settings:
+        ipv6_bridge_enabled: true
+        led_lights_on: true
+        location_analytics_enabled: true
+        meshing_enabled: false
+        upgrade_strategy: minimize_upgrade_time
+      bluetooth_settings:
+        scanning_enabled: true
+        beaconing_enabled: false
+      rf_profiles:
+        - name: Demo-RF-Profile
+          state: present
+          band_selection_type: ap
+          client_balancing_enabled: true
+          ap_band_settings:
+            mode: dual
+            band_steering_enabled: true
+          five_ghz_settings:
+            max_power: 30
+            min_bitrate: 12
+            min_power: 8
+            rxsop: -65
+            channel_width: 80
+          two_four_ghz_settings:
+            max_power: 30
+            min_bitrate: 12
+            min_power: 8
+            rxsop: -65
+            ax_enabled: true
+      ssids:
+        - name: Meraki-Demo-Client-Network
+          state: present
+          enabled: true
+          visible: true
+          available_on_all_aps: true
+          authentication:
+            auth_mode: psk
+            psk: "CiscoLive!2023"
+            encryption_mode: wpa
+            wpa_encryption_mode: WPA2 only
+          vlan:
+            use_vlan_tagging: true
+            default_vlan_id: 20
+          ip_assignment_mode: Bridge mode
+          lan_isolation_enabled: true
+          splash_page: None
+        - name: Meraki-Demo-Camera-Network
+          state: present
+          enabled: true
+          visible: true
+          available_on_all_aps: true
+          authentication:
+            auth_mode: psk
+            psk: "CiscoLive!2023!Cameras"
+            encryption_mode: wpa
+            wpa_encryption_mode: WPA2 only
+          vlan:
+            use_vlan_tagging: true
+            default_vlan_id: 30
+          ip_assignment_mode: Bridge mode
+          lan_isolation_enabled: false
+          splash_page: None

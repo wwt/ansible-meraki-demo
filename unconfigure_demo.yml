@@ -1,0 +1,62 @@
+---
+- name: Playbook to tear down the demo environment
+  connection: local
+  hosts: localhost
+  vars:
+    auth_key: "{{ lookup('ansible.builtin.env', 'MERAKI_API_KEY', default=undef()) }}"
+
+  pre_tasks:
+    - name: Include vars from meraki_configs directory
+      ansible.builtin.include_vars:
+        dir: ./meraki_configs
+        extensions: ["yml"]
+
+    - name: Check for Meraki API Key
+      ansible.builtin.fail:
+        msg: "auth_key is undefined"
+      when: not auth_key is defined
+
+  tasks:
+    - name: Get Meraki Network IDs
+      cisco.meraki.meraki_network:
+        auth_key: "{{ auth_key }}"
+        org_name: "{{ config.organization }}"
+        net_name: "{{ config.network }}"
+        state: query
+      loop: "{{ meraki_mt_configuration }}"
+      loop_control:
+        loop_var: config
+      register: network_results
+
+    - name: Failure - Network DOES NOT exist
+      ansible.builtin.fail:
+        msg: Meraki Network is not provisioned
+      when: network_results.results[0].data.id is not defined
+
+    - name: Build dict of Network Name to IDs
+      ansible.builtin.set_fact:
+        network_ids: >-
+          {{ network_ids | default({}) | combine(
+            {
+              result.data.name: {
+                "network_id": result.data.id,
+              }
+            }
+          ) }}
+      loop: "{{ network_results.results }}"
+      loop_control:
+        loop_var: result
+
+    - name: Disable MQTT on MT Network
+      ansible.builtin.include_tasks: remove_mqtt.yml
+      vars:
+        network_id: "{{ network_ids[config.network]['network_id'] }}"
+      loop: "{{ meraki_mt_configuration }}"
+      loop_control:
+        loop_var: config
+
+    - name: Remove Meraki Network and Devices
+      ansible.builtin.include_tasks: remove_network.yml
+      loop: "{{ meraki_networks }}"
+      loop_control:
+        loop_var: network

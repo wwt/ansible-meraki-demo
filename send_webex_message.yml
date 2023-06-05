@@ -1,0 +1,94 @@
+---
+- name: Playbook to send Meraki MV Snapshot to Webex Teams
+  connection: local
+  hosts: localhost
+  gather_facts: false
+  vars:
+    auth_key: "{{ lookup('ansible.builtin.env', 'MERAKI_API_KEY', default=undef()) }}"
+    webex_token: "{{ lookup('ansible.builtin.env', 'WEBEX_TOKEN', default=undef()) }}"
+
+  pre_tasks:
+    - name: Load meraki_networks data
+      ansible.builtin.include_vars:
+        file: ./meraki_configs/meraki_networks.yml
+
+  tasks:
+    - name: Find Camera Serial Number by Name
+      ansible.builtin.set_fact:
+        camera_serial: "{{ meraki_networks | community.general.json_query(sn_query) | first }}"
+      vars:
+        sn_query: "[].devices[?name=='{{ camera_name }}'].serial | [0]"
+
+    - name: Capture Meraki MV Camera Snapshot
+      block:
+        - name: "Capturing Camera Snapshot from {{ camera_name }}"
+          ansible.builtin.uri:
+            url: "{{ dashboard_base_url }}/devices/{{ camera_serial }}/camera/generateSnapshot"
+            method: POST
+            status_code: 202
+            headers:
+              Content-Type: application/json
+              X-Cisco-Meraki-API-Key: "{{ auth_key }}"
+          until: mv_api_result.status != 429
+          delay: 5
+          retries: 3
+          register: mv_api_result
+      rescue:
+        - name: Something went wrong...
+          ansible.builtin.debug:
+            msg: "ERROR: {{ mv_api_result }}"
+
+    - name: Look up Webex Teams Room ID by Name
+      block:
+        - name: Searching for Webex Teams Rooms
+          ansible.builtin.uri:
+            url: "{{ webex_base_url }}/rooms"
+            method: GET
+            status_code: 200
+            headers:
+              Authorization: "Bearer {{ webex_token }}"
+          until: webex_room_api_result.status != 429
+          delay: 5
+          retries: 3
+          register: webex_room_api_result
+          when: mv_api_result.status == 202
+      rescue:
+        - name: Something went wrong...
+          ansible.builtin.debug:
+            msg: "ERROR: {{ webex_room_api_result }}"
+
+    - name: Set Webex Room ID
+      ansible.builtin.set_fact:
+        webex_room_id: "{{ webex_room_api_result.json | community.general.json_query(room_query) }}"
+      vars:
+        room_query: "items[?title=='{{ webex_room_name }}'].id | [0]"
+
+    - name: Send Webex Teams Message
+      block:
+        - name: "Sending Webex Teams Message"
+          ansible.builtin.uri:
+            url: "{{ webex_base_url }}/messages"
+            method: POST
+            status_code: 200
+            headers:
+              Authorization: "Bearer {{ webex_token }}"
+            body_format: json
+            body:
+              roomId: "{{ webex_room_id }}"
+              markdown: |
+                **Snapshot from Camera: {{ camera_name }}**
+                **Event-Driven Ansible Event Information**
+                  * Triggering Device: {{ source_device | default("Unknown Device") }}
+                  * Action: {{ ansible_eda.event.action | default("No Event Action Provided") }}
+                  * Button Press Duration: {{ ansible_eda.event.pressDuration | default("No Press Duration Provided") }}
+              files:
+                - "{{ mv_api_result.json.url }}"
+          until: webex_api_result.status != 429
+          delay: 5
+          retries: 3
+          register: webex_api_result
+          when: mv_api_result.status == 202
+      rescue:
+        - name: Something went wrong...
+          ansible.builtin.debug:
+            msg: "ERROR: {{ webex_api_result }}"

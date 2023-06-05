@@ -1,0 +1,32 @@
+---
+- name: Meraki MT30 Sensor Button Presses
+  hosts: all
+  sources:
+    - kubealex.eda.mqtt:
+        host: MQTT BROKER
+        port: 8883
+        username: MQTT USERNAME
+        password: MQTT PASSWORD
+        ca_certs: path/to/mqtt.crt
+        validate_certs: false
+        topic: meraki/v1/mt/#
+      filters:
+        - compare_mqtt_timestamp:
+  rules:
+    - name: Button Long Press
+      condition: event.action == "longPress" and event.timestamps.msg_age < 10
+      action:
+        run_job_template:
+          name: Unconfigure Demo Environment
+          organization: Meraki-Demo
+    - name: Button Short Press
+      condition: event.action == "shortPress" and event.timestamps.msg_age < 10
+      action:
+        run_job_template:
+          name: Send Webex Teams Message
+          organization: Meraki-Demo
+          job_args:
+            extra_vars:
+              source_device: "demo-mt30"
+              camera_name: "demo-mv2"
+              webex_room_name: "WEBEX TEAMS ROOM"

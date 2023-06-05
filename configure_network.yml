@@ -1,0 +1,40 @@
+---
+- name: Playbook to configure Meraki Networks
+  connection: local
+  hosts: localhost
+  vars:
+    auth_key: "{{ lookup('ansible.builtin.env', 'MERAKI_API_KEY', default=undef()) }}"
+
+  pre_tasks:
+    - name: Validate Webhook Contents
+      ansible.builtin.assert:
+        that:
+          - "{{ tower_webhook_event_type == 'pull_request' }}"
+          - "{{ tower_webhook_payload.action == 'closed' }}"
+          - "{{ tower_webhook_payload.pull_request.base.ref == 'main' }}"
+        fail_msg: "Pull Request Event is not 'closed'."
+        success_msg: "Pull Request Event is 'closed'."
+      register: assert_result
+      ignore_errors: true
+      when: tower_webhook_event_type is defined and tower_webhook_payload is defined
+
+    - name: Webhook Assert Failed - End the Play
+      ansible.builtin.meta: end_play
+      when: assert_result.failed is defined and assert_result.failed
+
+    - name: Include vars from meraki_configs directory
+      ansible.builtin.include_vars:
+        dir: ./meraki_configs
+        extensions: ["yml"]
+
+    - name: Check for Meraki API Key
+      ansible.builtin.fail:
+        msg: "auth_key is undefined"
+      when: not auth_key is defined
+
+  roles:
+    - {role: wwt.meraki.manage_meraki_network, when: meraki_networks is defined}
+    - {role: wwt.meraki.configure_meraki_mx, when: meraki_mx_configuration is defined}
+    - {role: wwt.meraki.configure_meraki_mr, when: meraki_mr_configuration is defined}
+    - {role: wwt.meraki.configure_meraki_mt, when: meraki_mt_configuration is defined}
+    - {role: wwt.meraki.configure_meraki_mv, when: meraki_mt_configuration is defined}

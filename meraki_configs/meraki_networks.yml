@@ -1,0 +1,26 @@
+---
+meraki_networks:
+  - name: NETWORK NAME
+    organization: ORG NAME
+    type:
+      - appliance
+      - wireless
+      - camera
+    timezone: America/Chicago
+    enable_vlans: true
+    state: present
+    tags: demo
+    devices:
+      - name: demo-mx68
+        serial: SERIAL
+        state: present
+      - name: demo-mr44
+        serial: SERIAL
+        state: present
+      - name: demo-mv2
+        serial: SERIAL
+        state: present
+      - name: demo-mt30
+        serial: SERIAL
+        state: present
+    address: SITE ADDRESS

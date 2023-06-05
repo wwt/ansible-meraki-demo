@@ -1,0 +1,115 @@
+---
+meraki_mx_configuration:
+  appliances:
+    - name: demo-mx68
+      organization: ORG NAME
+      network: NETWORK NAME
+      deployment_settings:
+        deployment_mode: routed
+        client_tracking: MAC address
+        dynamic_dns:
+          prefix: demo
+          enabled: true
+      wan_interfaces:
+        wan1:
+          enabled: true
+          vlan_tagging:
+            enabled: false
+          svis:
+            ipv4:
+              assignment_mode: dynamic
+            ipv6:
+              assignment_mode: dynamic
+          pppoe:
+            enabled: false
+        wan2:
+          enabled: false
+      lan_settings:
+        enable_vlans: true
+      vlans:
+        - id: 10
+          state: present
+          name: Servers
+          subnet: 10.74.10.0/24
+          appliance_ip: 10.74.10.1
+          reserved_ip_range:
+            - start: 10.74.10.2
+              end: 10.74.10.49
+              comment: Server VLAN Reserved Range
+          dns_nameservers: 1.1.1.1
+        - id: 20
+          state: present
+          name: Clients
+          subnet: 10.74.20.0/24
+          appliance_ip: 10.74.20.1
+          reserved_ip_range:
+            - start: 10.74.20.2
+              end: 10.74.20.49
+              comment: Client VLAN Reserved Range
+          dns_nameservers: 1.1.1.1
+        - id: 30
+          state: present
+          name: Cameras
+          subnet: 10.74.30.0/24
+          appliance_ip: 10.74.30.1
+          reserved_ip_range:
+            - start: 10.74.30.2
+              end: 10.74.30.49
+              comment: Camera VLAN Reserved Range
+        - id: 1
+          state: absent
+      ports:
+        - id: 3
+          enabled: true
+          drop_untagged_traffic: false
+          type: access
+          vlan: 10
+          access_policy: open
+        - id: 4
+          enabled: false
+        - id: 5
+          enabled: false
+        - id: 6
+          enabled: false
+        - id: 7
+          enabled: false
+        - id: 8
+          enabled: false
+        - id: 9
+          enabled: false
+        - id: 10
+          enabled: false
+        - id: 11
+          enabled: false
+        - id: 12
+          enabled: true
+          drop_untagged_traffic: false
+          type: trunk
+          vlan: 10
+          allowed_vlans: 10,20,30
+      threat_protection:
+        malware:
+          mode: enabled
+          allowed_urls:
+            - url: ansible.com
+              comment: allow ansible.com
+            - url: wwt.com
+              comment: allow wwt.com
+        intrusion:
+          mode: prevention
+          rulesets: balanced
+        firewall:
+          l3_rules:
+            - comment: Deny Traffic to 4.2.2.2
+              src_cidr: Any
+              src_port: Any
+              dest_cidr: 4.2.2.2
+              dest_port: Any
+              protocol: any
+              policy: deny
+          l7_rules:
+            - type: blocked_countries
+              countries:
+                - CN
+                - RU
+                - KP

@@ -1,0 +1,88 @@
+---
+- name: Query for existing MQTT brokers
+  block:
+    - name: "Query for existing MQTT brokers on Network {{ config.network }}"
+      ansible.builtin.uri:
+        url: "{{ dashboard_base_url }}/networks/{{ network_id }}/mqttBrokers"
+        method: GET
+        status_code: 200
+        headers:
+          Content-Type: application/json
+          Accept: application/json
+          X-Cisco-Meraki-API-Key: "{{ auth_key }}"
+      until: broker_result.status != 429
+      delay: 5
+      retries: 3
+      register: broker_result
+      when: config.mqtt_brokers is defined
+  rescue:
+    - name: Something went wrong...
+      ansible.builtin.debug:
+        msg: "ERROR: {{ broker_result }}"
+
+- name: Add discovered brokers to dict
+  ansible.builtin.set_fact:
+    mqtt_broker_ids: >-
+      {{ mqtt_broker_ids | default({}) | combine(
+        {
+          result.name: {
+            "broker_id": result.id,
+          }
+        }
+      ) }}
+  loop: "{{ broker_result.json }}"
+  loop_control:
+    loop_var: result
+  when: broker_result.status == 200
+
+- name: Disable MQTT Broker
+  block:
+    - name: "Disabling MQTT Broker for Network {{ config.network }}"
+      ansible.builtin.uri:
+        url: "{{ dashboard_base_url }}/networks/{{ network_id }}/sensor/mqttBrokers/{{ mqtt_broker_ids[broker.name].broker_id }}"
+        method: PUT
+        status_code: 200
+        headers:
+          Content-Type: application/json
+          X-Cisco-Meraki-API-Key: "{{ auth_key }}"
+        body_format: json
+        body:
+          enabled: false
+      changed_when: enable_broker_result.status == 200
+      until: enable_broker_result.status != 429
+      delay: 5
+      retries: 3
+      register: enable_broker_result
+      loop: "{{ config.mqtt_brokers }}"
+      loop_control:
+        loop_var: broker
+      when: mqtt_broker_ids[broker.name] is defined
+  rescue:
+    - name: Something went wrong...
+      ansible.builtin.debug:
+        msg: "ERROR: {{ enable_broker_result }}"
+
+- name: Delete MQTT Broker
+  block:
+    - name: "Deleting MQTT Broker for Network {{ config.network }}"
+      ansible.builtin.uri:
+        url: "{{ dashboard_base_url }}/networks/{{ network_id }}/mqttBrokers/{{ mqtt_broker_ids[broker.name].broker_id }}"
+        method: DELETE
+        status_code: 204
+        headers:
+          Content-Type: application/json
+          Accept: application/json
+          X-Cisco-Meraki-API-Key: "{{ auth_key }}"
+      changed_when: delete_broker_result.status == 204
+      until: delete_broker_result.status != 429
+      delay: 5
+      retries: 3
+      register: delete_broker_result
+      when: mqtt_broker_ids[broker.name] is defined
+      loop: "{{ config.mqtt_brokers }}"
+      loop_control:
+        loop_var: broker
+  rescue:
+    - name: Something went wrong...
+      ansible.builtin.debug:
+        msg: "ERROR: {{ delete_broker_result }}"

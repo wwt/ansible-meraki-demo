@@ -1,0 +1,13 @@
+---
+- name: Claim Meraki Inventory via Order, Serial Number, or License Key
+  connection: local
+  hosts: localhost
+
+  tasks:
+    - name: Claim Meraki Device
+      ansible.builtin.include_role:
+        name: wwt.meraki.claim_meraki
+      vars:
+        serial_numbers: "{{ survey_serial_numbers.split('\n') }}"
+        order_ids: "{{ survey_order_ids.split('\n') }}"
+        license_keys: "{{ survey_license_keys.split('\n') }}"

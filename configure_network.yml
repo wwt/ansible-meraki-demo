@@ -9,11 +9,10 @@
     - name: Validate Webhook Contents
       ansible.builtin.assert:
         that:
-          - "{{ tower_webhook_event_type == 'pull_request' }}"
-          - "{{ tower_webhook_payload.action == 'closed' }}"
-          - "{{ tower_webhook_payload.pull_request.base.ref == 'main' }}"
-        fail_msg: "Pull Request Event is not 'closed'."
-        success_msg: "Pull Request Event is 'closed'."
+          - "{{ tower_webhook_event_type == 'push' }}"
+          - "{{ tower_webhook_payload.ref == 'refs/heads/main' }}"
+        fail_msg: "Push Event is not for 'main' branch."
+        success_msg: "Push branch is 'main'."
       register: assert_result
       ignore_errors: true
       when: tower_webhook_event_type is defined and tower_webhook_payload is defined

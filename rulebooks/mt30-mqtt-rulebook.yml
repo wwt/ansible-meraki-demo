@@ -2,16 +2,19 @@
 - name: Meraki MT30 Sensor Button Presses
   hosts: all
   sources:
-    - kubealex.eda.mqtt:
+    - wwt.eda.mqtt:
         host: MQTT BROKER
         port: 8883
         username: MQTT USERNAME
         password: MQTT PASSWORD
-        ca_certs: path/to/mqtt.crt
+        ca_certs: |-
+          -----BEGIN CERTIFICATE-----
+          CERTIFICATE DATA
+          -----END CERTIFICATE-----
         validate_certs: false
         topic: meraki/v1/mt/#
       filters:
-        - compare_mqtt_timestamp:
+        - wwt.eda.compare_mqtt_timestamp:
   rules:
     - name: Button Long Press
       condition: event.action == "longPress" and event.timestamps.msg_age < 10

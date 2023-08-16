@@ -13,11 +13,11 @@ This repository contains sample Ansible Playbooks and Event-Driven Ansible Ruleb
 
 ### Included Rulebooks
 
-* `mt30-mqtt-rulebook.yml` - Listens for MQTT Messages from Meraki MT30 sensor and triggers environment tear down or camera snapshot.
+* `rulebooks/mt30-mqtt-rulebook.yml` - Listens for MQTT Messages from Meraki MT30 sensor and triggers environment tear down or camera snapshot.
 
 ### Event-Driven Ansible Event Filter
 
-* `event_filter/compare_mqtt_timestamp.py` - Event Filter Plugin to compare MQTT message time stamp with the receive timestamp to make sure EDA does not fire on old MQTT messages that were retained.
+* `event_filter/compare_mqtt_timestamp.py` - Event Filter Plugin to compare MQTT message time stamp with the receive timestamp to make sure EDA does not fire on old MQTT messages that were retained.  Uses `wwt.eda` Ansible collection.
 
 ### .env Example
 

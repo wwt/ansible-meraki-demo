@@ -1,4 +1,5 @@
 ---
 collections:
   - name: wwt.meraki
+  - name: wwt.eda
   - name: community.general

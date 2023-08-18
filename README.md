@@ -1,3 +1,5 @@
+[![published](https://static.production.devnetcloud.com/codeexchange/assets/images/devnet-published.svg)](https://developer.cisco.com/codeexchange/github/repo/wwt/ansible-meraki-demo) [![Run in Cisco Cloud IDE](https://static.production.devnetcloud.com/codeexchange/assets/images/devnet-runable-icon.svg)](https://developer.cisco.com/codeexchange/devenv/wwt/ansible-meraki-demo/)
+
 # ansible-meraki-demo
 
 This repository contains sample Ansible Playbooks and Event-Driven Ansible Rulebooks as demonstrated during the **"Using Ansible to automate edge site infrastructure at scale"** talk delivered in Red Hat's booth during Cisco Live US 2023.

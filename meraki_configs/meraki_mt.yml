@@ -13,9 +13,17 @@ meraki_mt_configuration:
       host: MQTT HOST
       port: 8883
       authentication:
+<<<<<<< HEAD
         username: MQTT USER
         password: MQTT PASSWORD
       security:
         mode: tls
         certFile: 'PATH/TO/CERT'
+=======
+        username: USERNAME
+        password: PASSWORD
+      security:
+        mode: tls
+        certFile: PATH/TO/CERT
+>>>>>>> e42c6f2 (updated mqtt data)
         verifyHostnames: false

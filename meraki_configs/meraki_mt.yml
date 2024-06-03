@@ -10,11 +10,11 @@ meraki_mt_configuration:
     - name: MQTT-Broker
       state: present
       enabled: true
-      host: MQTT HOST
+      host: MQTT-HOST
       port: 8883
       authentication:
-        username: MQTT USER
-        password: MQTT PASSWORD
+        username: MQTT-USER
+        password: MQTT-PASSWORD
       security:
         mode: tls
         certFile: 'PATH/TO/CERT'

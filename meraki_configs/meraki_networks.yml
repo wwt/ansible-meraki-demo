@@ -1,17 +1,22 @@
 ---
 meraki_networks:
-  - name: NETWORK NAME
-    organization: ORG NAME
+  - name: YOUR NETWORK NAME
+    organization: YOUR ORG NAME
     type:
       - appliance
+      - switch
       - wireless
       - camera
     timezone: America/Chicago
     enable_vlans: true
     state: present
-    tags: demo
+    tags:
+      - demo
     devices:
       - name: demo-mx68
+        serial: SERIAL
+        state: present
+      - name: demo-ms120
         serial: SERIAL
         state: present
       - name: demo-mr44
@@ -23,4 +28,4 @@ meraki_networks:
       - name: demo-mt30
         serial: SERIAL
         state: present
-    address: SITE ADDRESS
+    address: YOUR ADDRESS

@@ -2,7 +2,9 @@
 
 # ansible-meraki-demo
 
-This repository contains sample Ansible Playbooks and Event-Driven Ansible Rulebooks as demonstrated during the **"Using Ansible to automate edge site infrastructure at scale"** talk delivered in Red Hat's booth during Cisco Live US 2023.
+This repository contains sample Ansible Playbooks and Event-Driven Ansible Rulebooks as demonstrated during the **"Using Ansible to automate edge site infrastructure at scale"** talk delivered in Red Hat's booth during Cisco Live US 2023 and during the **"Automation at the Edge with Red Hat Ansible and Cisco Meraki"** talk delivered in Red Hat's booth during Cisco Live US 2024.
+
+The content and data models have been updated for 2024, and now utilize the latest release of the `wwt.meraki` collection.  This collection has been rewritten to support the latest release and certified content provided as part of the `cisco.meraki` collection.
 
 ## Details
 

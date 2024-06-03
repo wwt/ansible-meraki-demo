@@ -1,18 +1,24 @@
 ---
-- name: Remove Devices from Meraki Network
-  cisco.meraki.meraki_device:
-    auth_key: "{{ auth_key }}"
-    org_name: "{{ network.organization }}"
-    net_name: "{{ network.name }}"
-    serial: "{{ device.serial }}"
-    state: absent
-  loop: "{{ network.devices }}"
+- name: Look for existing network devices
+  ansible.builtin.set_fact:
+    device_serials: "{{ query('wwt.meraki.fetch',
+      'network_devices',
+      network_name=network.name,
+      org_name=network.organization,
+      meraki_api_key=auth_key) }}"
+
+- name: Remove Devices
+  cisco.meraki.networks_devices_remove:
+    meraki_api_key: "{{ auth_key }}"
+    networkId: "{{ network_id }}"
+    serial: "{{ device }}"
+  loop: "{{ device_serials }}"
   loop_control:
     loop_var: device
+  when: device_serials is defined
 
 - name: Remove Meraki Network
-  cisco.meraki.meraki_network:
-    auth_key: "{{ auth_key }}"
+  cisco.meraki.networks:
+    meraki_api_key: "{{ auth_key }}"
     state: absent
-    org_name: "{{ network.organization }}"
-    net_name: "{{ network.name }}"
+    networkId: "{{ network_id }}"

@@ -1,38 +1,46 @@
 ---
 meraki_mv_configuration:
-  - organization: ORG NAME
-    network: NETWORK NAME
-    camera_profiles:
-      wireless:
-        - name: Meraki-Demo-Camera-Profile
-          state: present
-          auth_mode: psk
-          encryption_mode: wpa
-          ssid: Meraki-Demo-Camera-Network
-          psk: "CiscoLive!2023!Cameras"
-        - name: Meraki-Demo-Secondary-Camera-Profile
-          state: present
-          auth_mode: psk
-          encryption_mode: wpa
-          ssid: Meraki-Demo-Client-Network
-          psk: "CiscoLive!2023"
-      quality_and_retention:
-        - name: Meraki-Demo-Quality-Profile
-          state: present
-          cloud_archive: false
-          restricted_bandwidth_mode: false
-          audio_recording: false
-          video_settings:
-            MV2:
-              quality: high
-              resolution: 1920x1080
-    cameras:
-      - name: demo-mv2
+  network:
+    organization: YOUR ORG NAME
+    name: YOUR NETWORK NAME
+  camera_profiles:
+    wireless:
+      - name: Meraki-Demo-Camera-Profile
         state: present
-        quality_and_retention:
-          motion_detector_version: 2
-          video_resolution: 1920x1080
-          video_quality: high
+        ssid:
+          authMode: psk
+          encryptionMode: wpa
+          name: Meraki-Demo-Camera-Network
+          psk: "CiscoLive!2024!Cameras"
+      - name: Meraki-Demo-Secondary-Camera-Profile
+        state: present
+        ssid:
+          authMode: psk
+          encryptionMode: wpa
+          name: Meraki-Demo-Client-Network
+          psk: "CiscoLive!2024"
+    quality_and_retention:
+      - name: Meraki-Demo-Quality-Profile
+        state: present
+        cloudArchiveEnabled: false
+        maxRetentionDays: 1
+        motionBasedRetentionEnabled: false
+        restrictedBandwidthModeEnabled: false
+        audioRecordingEnabled: false
+        videoSettings:
+          MV2:
+            quality: high
+            resolution: 1920x1080
+  cameras:
+    - name: demo-mv2
+      state: present
+      camera_profiles:
         wireless:
-          profile_1: Meraki-Demo-Camera-Profile
-          profile_2: Meraki-Demo-Secondary-Camera-Profile
+          primary: Meraki-Demo-Camera-Profile
+          secondary: Meraki-Demo-Secondary-Camera-Profile
+        quality_and_retention:
+          name: Meraki-Demo-Quality-Profile
+      sense:
+        senseEnabled: false
+        audioDetection:
+          enabled: false

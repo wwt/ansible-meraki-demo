@@ -1,19 +1,21 @@
 ---
 meraki_mt_configuration:
-  - organization: ORG NAME
-    network: NETWORK NAME
-    sensors:
-      - name: demo-mt30
-    mqtt_brokers:
-      - name: MQTT-Broker
-        state: present
-        enabled: false
-        host: MQTT-HOST
-        port: 8883
-        authentication:
-          username: MQTT-USER
-          password: MQTT-PASSWORD
-        security:
-          mode: tls
-          cert_file: 'path/to/mqtt.crt'
-          hostname_verification: false
+  network:
+    organization: YOUR ORG NAME
+    name: YOUR NETWORK NAME
+  sensors:
+    - name: demo-mt30
+      state: present
+  mqtt_brokers:
+    - name: MQTT-Broker
+      state: present
+      enabled: true
+      host: MQTT HOST
+      port: 8883
+      authentication:
+        username: MQTT USER
+        password: MQTT PASSWORD
+      security:
+        mode: tls
+        certFile: 'PATH/TO/CERT'
+        verifyHostnames: false
